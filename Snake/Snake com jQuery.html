@@ -1,0 +1,202 @@
+
+
+<!DOCTYPE html>
+<html lang = "pt-br">
+	<head>
+		<title> Snake in Javascript</title>
+		<meta charset = "utf-8"/>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script>
+			document.onkeydown = CheckKey;
+			var resolution = 40; // Set pixel resolution to snake and food
+			var width_Screen, heigth_Screen;
+			var svgNS = "http://www.w3.org/2000/svg";
+			var interval_a = window.setInterval(function(){Move();}, 80);
+			var body = [];
+			var pointsX = [];
+			var pointsY = [];
+			var Directions = {Rigth:1, Left:2, Up:3, Down:4 };
+			var direction = Directions.Right;
+			var colors = ["gray", "yellow", "green", "blue", "white", "magenta", "blueviolet", "brown", "chartreuse", "cyan", "greenyellow", "orange", "lime"];
+			var xDir = -resolution;
+			var yDir = 0;
+			var score = 0;
+			var index = 0;
+			var gameOn = false;
+			
+			function Define(){
+				$("#food").attr("width", resolution);
+				$("#food").attr("height", resolution);
+				var screen = $("#mySVG");
+				var screenX = screen.attr("width");
+				var screenY = screen.attr("height");
+			
+			if (screenX % resolution != 0){
+				screen.attr("width", RoundByMultiple(screenX, resolution));
+			}
+			if (screenY % resolution != 0){
+				screen.attr("height", RoundByMultiple(screenY, resolution));
+			}
+			width_Screen = screen.attr("width");
+			heigth_Screen = screen.attr("height");
+			$("#svgText").attr("font-size", screenX/10 + "px");
+		
+				for (var i = resolution; i < width_Screen; i+=resolution){
+					pointsX[index] = i;
+					index++;
+				}
+			
+				index = 0;
+			
+				for (var j = resolution; j < heigth_Screen; j+=resolution){
+					pointsY[index] = j;
+					index++;
+				}
+			
+			}
+
+			
+			function StartGame(){
+				$("#svgText").hide();
+				$("#food").show();
+				gameOn = true;
+				for (var i = 0; i <5; i++){
+					CreateRect((resolution*5) - (i*resolution), resolution, resolution, resolution);
+				}
+				RandomFood();
+			}
+
+			function CreateRect(x, y, w, h){
+				snake = $(document.createElementNS(svgNS,"rect")); 
+				snake.attr("x",x);
+				snake.attr("y",y);
+				snake.attr("width",w);
+				snake.attr("height",h);
+				var a = false;
+					if (body.length >= 1){
+						while (!a){
+							c = RandomValues(colors.length);
+							if (body[body.length-1].attr("fill") != colors[c]){
+								a = true;
+							}
+						} 
+					} else {
+						c = RandomValues(colors.length);
+					}
+				snake.attr("fill",colors[c]);
+				body.push(snake);
+				$("#mySVG").append(snake);
+		}
+		function Move(){
+			for (var i = body.length -1; i > 0; i--){
+				body[i].attr("x", body[i-1].attr("x"));
+				body[i].attr("y", body[i-1].attr("y"));
+			}
+			body[0].attr("x", body[0].attr("x") - xDir);
+			body[0].attr("y", body[0].attr("y") - yDir);
+			CheckEat();
+			CheckDeath();
+		}
+		
+		function RandomFood(){
+			var X = RandomValues(pointsX.length);
+			var Y = RandomValues(pointsY.length);
+			$("#food").attr("x", pointsX[X]);
+			$("#food").attr("y", pointsY[Y]);
+			for (var i = 0; i < body.length; i++){
+				var bX = body[i].attr("x");
+				var bY = body[i].attr("y");
+				fX = $("#food").attr("x");
+				fY = $("#food").attr("y");
+				if (bX == fX && bY == fY){
+					RandomFood();
+				}
+			}
+		}
+		
+		function CheckEat(){
+			bX = body[0].attr("x");
+			bY = body[0].attr("y");
+			if (bX == fX && bY == fY){
+				score++;
+				$("#score-display").html(score);
+				CreateRect(body[body.length-1].attr("x"),
+				body[body.length-1].attr("y"), resolution, resolution);
+				RandomFood();
+			}
+		}
+
+		function CheckDeath(){
+			for (var i = body.length-1; i >1; i--){
+				var aX = body[i].attr("x");
+				var aY = body[i].attr("y");
+				if (direction == Directions.Right || direction == Directions.Left){
+					if (bX - xDir == aX  && bY == aY)
+					GameOver();
+				} if (direction == Directions.Up || direction == Directions.Down){
+					if (bX == aX && bY -yDir == aY)
+					GameOver();
+				}
+			}
+			
+			if (bX < 0 || bX == width_Screen || bY < 0 || bY == heigth_Screen)
+					GameOver();
+		}
+
+
+		
+		function GameOver(){
+			clearInterval(interval_a);
+			setTimeout(function() {
+				location.reload();
+				}, 1000);
+
+		}
+		
+		function CheckKey(e) {
+				if (e.keyCode == "13" && !gameOn) {
+					StartGame();
+				}
+				
+				if ((e.keyCode == "68" || e.keyCode == "39") && direction != Directions.Left){
+					xDir = -resolution;
+					yDir = 0;
+					direction = Directions.Right;
+				}
+				if ((e.keyCode == "65" || e.keyCode == "37") && direction != Directions.Right){
+					xDir = resolution;
+					yDir = 0;
+					direction = Directions.Left;
+				}
+				if ((e.keyCode == "87"|| e.keyCode == "38") && direction != Directions.Down){
+					xDir = 0;
+					yDir = resolution;
+					direction = Directions.Up;
+				}
+				if ((e.keyCode == "83" || e.keyCode == "40") && direction != Directions.Up){
+					xDir = 0;
+					yDir = -resolution;
+					direction = Directions.Down;
+				}
+			}
+			
+			function RandomValues(value){
+				return Math.floor(Math.random() * value);
+			}
+			
+			function RoundByMultiple(value, res){
+				return res*(Math.floor(value/res));
+			}
+
+		</script>
+	</head>
+	<body onload = "Define()">
+		<svg id = "mySVG" xmlns="http://www.w3.org/2000/svg" width = "900" height = "420" style = "background-color:#000000; border:2px solid blue">
+			<text id = "svgText" x="50%" y="50%" alignment-baseline="middle" text-anchor="middle" fill = "white"> Press enter to play</text>
+			<rect id = "food" x = "0" y = "0"fill = "red" style = "display:none"/>
+		</svg>
+		<div>
+			<h1>Your score: <span id ="score-display">0</span></h1>
+		</div>
+	</body>
+</html>

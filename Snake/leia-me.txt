@@ -1,0 +1,15 @@
+Jogo Snake desenvolvido com JavaScript, HTML (para estruturação da página) e SVG.
+Tenho também a versão com jQuery, para melhorar o código.
+
+O jogo conta com:
+1. geração de cores aleatórias para os quadrados que representam o corpo da cobrinha (evitando de repetir duas cores seguidas);
+
+2. verificação de game over ao colidir com as bordas ou com qualquer parte da própria cobrinha (colisão pelas laterais, não atravessando);
+
+3. jogo permite várias dimensões do display e dos pixels da cobrinha -> alterando o tamanho do SVG do display, ele vai automatimante se reajustar a um valor próximo a um múltiplo da resolução dos pixels da cobrinha, fazendo com que se possa jogar em diferentes tamanhos do display da tela (e a cobrinha também) sem ocasionar erros de colisões e movimentação, tudo isso através de uma função que calcula o reajuste;
+
+4. pode jogar com as teclas direcionais e também com w,a,s,d;
+
+5. A comida (food) nunca irá ser gerada no mesmo local que alguma parte da cobrinha está.
+
+Tudo feito com 100% código, sem utilizar engines, apenas JS, SVG e um pouco de HTML.
